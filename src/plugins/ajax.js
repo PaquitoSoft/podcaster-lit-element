@@ -4,7 +4,8 @@ const _xmlParser = new DOMParser();
 
 const parsersMap = {
 	'text/html': xmlParser,
-	'application/json': parseJson
+	'application/json': parseJson,
+	'text/javascript': parseJson
 };
 
 function checkResponseStatus(res) {
@@ -19,7 +20,10 @@ function checkResponseStatus(res) {
 }
 
 function textParser(res) {
-	return res.text();
+	return res.text().then(data => ({
+		result: data,
+		url: res.url
+	}));
 }
 
 function xmlParser(res) {
@@ -45,7 +49,7 @@ function parseJson(res) {
 }
 
 function parseResponse(res) {
-	const contentType = res.headers.get('content-type');
+	const [contentType] = res.headers.get('content-type').split(';');
 	console.log('AjaxPlugin# Response content-type:', contentType);
 	const parser = parsersMap[contentType] || textParser;
 	return parser(res);

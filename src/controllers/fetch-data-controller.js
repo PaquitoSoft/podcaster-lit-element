@@ -1,7 +1,5 @@
-import { ReactiveController } from "lit";
-
-class FetchDataController extends ReactiveController {
-	fetchDataContext = {
+class FetchDataController {
+	context = {
 		isLoading: false,
 		data: null,
 		error: null
@@ -15,15 +13,15 @@ class FetchDataController extends ReactiveController {
 	}
 
 	async fetchData(loader) {
-		this.fetchDataContext.isLoading = true;
+		this.context.isLoading = true;
 		this.host.requestUpdate();
 
 		try {
-			this.fetchDataContext.data = await loader({ signal: this.#abortController });			
+			this.context.data = await loader({ signal: this.#abortController });
 		} catch (error) {
-			this.fetchDataContext.error = error;
+			this.context.error = error;
 		} finally {
-			this.fetchDataContext.isLoading = false;
+			this.context.isLoading = false;
 			this.host.requestUpdate();
 		}
 	}

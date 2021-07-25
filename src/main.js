@@ -29,7 +29,3 @@ export class App extends LitElement {
 };
 
 window.customElements.define('podcaster-app', App);
-
-// const $main = html`<podcaster-app></podcaster-app>`;
-
-// render($main, document.getElementById('root'));
