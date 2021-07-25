@@ -1,4 +1,4 @@
-import { html, LitElement, css } from "lit-element";
+import { html, LitElement, css } from "lit";
 
 import './views/shared/header/header';
 import './views/home/home-view';

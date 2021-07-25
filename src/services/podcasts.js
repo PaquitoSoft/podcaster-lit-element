@@ -1,4 +1,4 @@
-import { getJson, getXml } from '../plugins/ajax.js';
+import { getData } from '../plugins/ajax.js';
 
 // const BASE_CORS_URL = 'https://cors-anywhere.herokuapp.com/';
 // const BASE_CORS_URL = 'https://galvanize-cors-proxy.herokuapp.com/';
@@ -50,14 +50,14 @@ function createPodcastEpisodes(podcastFeed, podcastId) {
 }
 
 function getPodcastFeedUrl(podcastId) {
-	return getJson(`${BASE_CORS_URL}${PODCAST_ID_DATASOURCE_URL}${podcastId}`, { ttl: 60 * 24 * 7}) // ttl in minutes
+	return getData(`${BASE_CORS_URL}${PODCAST_ID_DATASOURCE_URL}${podcastId}`, { ttl: 60 * 24 * 7}) // ttl in minutes
 		.then(data => {
 			return data.results[0].feedUrl;
 		})
 }
 
 export function getAllPodcasts() {
-	return getJson(PODCASTS_DATASOURCE_URL, { ttl: 60 * 24 }) // ttl in minutes
+	return getData(PODCASTS_DATASOURCE_URL, { ttl: 60 * 24 }) // ttl in minutes
 		.then(data => {
 			return data.feed.entry.map(createPodcastSummary);
 		});
@@ -72,7 +72,7 @@ export function getPodcastDetail(podcastId) {
 			.then(values => {
 				const [podcasts, feedUrl] = values;
 
-				getXml(`${BASE_CORS_URL}${feedUrl}`, { ttl: 60 * 24 }) // ttl in minutes
+		(`${BASE_CORS_URL}${feedUrl}`, { ttl: 60 * 24 }) // ttl in minutes
 					.then(doc => {
 						const podcast = podcasts.find(podcast => podcast.id == podcastId); // eslint-disable-line eqeqeq
 						podcast.episodes = createPodcastEpisodes(doc, podcast.id);

@@ -2,6 +2,11 @@ import { getValue, storeValue } from './local-cache.js';
 
 const _xmlParser = new DOMParser();
 
+const parsersMap = {
+	'text/html': xmlParser,
+	'application/json': parseJson
+};
+
 function checkResponseStatus(res) {
 	if (res.status < 400) {
 		return res;
@@ -11,6 +16,10 @@ function checkResponseStatus(res) {
 		error.response = res;
 		throw error;
 	}
+}
+
+function textParser(res) {
+	return res.text();
 }
 
 function xmlParser(res) {
@@ -35,6 +44,13 @@ function parseJson(res) {
 	});
 }
 
+function parseResponse(res) {
+	const contentType = res.headers.get('content-type');
+	console.log('AjaxPlugin# Response content-type:', contentType);
+	const parser = parsersMap[contentType] || textParser;
+	return parser(res);
+}
+
 function cacheResponse(ttl, key) {
 	return (data) => {
 		if (ttl) {
@@ -45,23 +61,36 @@ function cacheResponse(ttl, key) {
 	}
 }
 
-function getData(url, responseParser, options = {ttl: 0}) {
+export function getData(url, { ttl, signal } = {}) {
 	let data = getValue(url);
 
 	if (data) {
 		return Promise.resolve(data);
 	} else {
-		return fetch(url)
+		return fetch(url, { signal })
 			.then(checkResponseStatus)
-			.then(responseParser)
-			.then(cacheResponse(options.ttl, url));
+			.then(parseResponse)
+			.then(cacheResponse(ttl || 0, url));
 	}
 }
 
-export function getJson(url, options) {
-	return getData(url, parseJson, options);
-}
+// function getData(url, responseParser, options = {ttl: 0}) {
+// 	let data = getValue(url);
 
-export function getXml(url, options) {
-	return getData(url, xmlParser, options);
-}
+// 	if (data) {
+// 		return Promise.resolve(data);
+// 	} else {
+// 		return fetch(url)
+// 			.then(checkResponseStatus)
+// 			.then(responseParser)
+// 			.then(cacheResponse(options.ttl, url));
+// 	}
+// }
+
+// export function getJson(url, options) {
+// 	return getData(url, parseJson, options);
+// }
+
+// export function getXml(url, options) {
+// 	return getData(url, xmlParser, options);
+// }
